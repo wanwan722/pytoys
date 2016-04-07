@@ -78,7 +78,7 @@ class Grammer(object):
       raise UnknownToken(next)
 
   def __is_done(self):
-    return self.__index == len(lexers) - 1
+    return self.__index == len(lexers)
 
   def __parse_var(self, token):
     var = VarType.token_to_type(token)
@@ -106,6 +106,7 @@ class Grammer(object):
           raise UnknownToken(token)
       elif self.__state == Grammer.STATE_SCOPE_STRUCTURE:
         if token == "}":
+          self.__verify_next_token(";")
           self.structures.append(structure)
           self.__state = Grammer.STATE_SCOPE_FILE
           structure = None
@@ -130,7 +131,7 @@ def output_struct_def(structures, filename):
       f.write("const std::array<FieldDef, %d> %s_Fields = {{\n" % (len(s.vars), s.name))
       for v in s.vars:
         f.write("\tFIELD_DEFINE(%s, %s, %s, %d),\n" % (s.name, v.name, VarType.type_to_enum(v.type), v.size))
-      f.write("}};\n")
+      f.write("}};\n\n")
 
 if __name__ == "__main__":
   if len(sys.argv) != 3:
