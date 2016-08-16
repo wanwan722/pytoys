@@ -59,7 +59,7 @@ class VarType(object):
     table = ["Int", "Float", "Double", "Char"]
     return "enum class VarType { %s };" % (", ".join(table))
 
-class Grammer(object):
+class Grammar(object):
   STATE_SCOPE_FILE, STATE_SCOPE_STRUCTURE = range(2)
 
   def __init__(self, lexers):
@@ -96,26 +96,26 @@ class Grammer(object):
     structure = None
     while not self.__is_done():
       token = self.__consume_token()
-      if self.__state == Grammer.STATE_SCOPE_FILE:
+      if self.__state == Grammar.STATE_SCOPE_FILE:
         if token == "struct":
           name = self.__consume_token()
           structure = CStruct(name)
           self.__verify_next_token("{")
-          self.__state = Grammer.STATE_SCOPE_STRUCTURE
+          self.__state = Grammar.STATE_SCOPE_STRUCTURE
         else:
           raise UnknownToken(token)
-      elif self.__state == Grammer.STATE_SCOPE_STRUCTURE:
+      elif self.__state == Grammar.STATE_SCOPE_STRUCTURE:
         if token == "}":
           self.__verify_next_token(";")
           self.structures.append(structure)
-          self.__state = Grammer.STATE_SCOPE_FILE
+          self.__state = Grammar.STATE_SCOPE_FILE
           structure = None
         else:
           var = self.__parse_var(token)
           structure.vars.append(var)
 
   def __reset_state(self, lexers):
-    self.__state = Grammer.STATE_SCOPE_FILE
+    self.__state = Grammar.STATE_SCOPE_FILE
     self.__index = 0
     self.__tokens = lexers
     self.structures = []
@@ -139,5 +139,5 @@ if __name__ == "__main__":
     sys.exit(0)
 
   lexers = lexer(sys.argv[1])
-  gramer = Grammer(lexers)
+  gramer = Grammar(lexers)
   output_struct_def(gramer.structures, sys.argv[2])
